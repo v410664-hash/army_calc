@@ -1,0 +1,10 @@
+# Інструкція для автоматичного збирання Android App та Play Market сторінки
+app:
+  name: "Армійський калькулятор відпусток"
+  package: "com.army.vacationcalc"
+  version: "1.0.0"
+  build_number: 1
+android:
+  permissions:
+    - android.permission.WRITE_EXTERNAL_STORAGE
+    - android.permission.READ_EXTERNAL_STORAGE
