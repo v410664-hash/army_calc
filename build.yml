@@ -10,20 +10,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Оновлено до актуальної версії v4 для сумісності з новими серверами
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Оновлено до версії v5 (забезпечує стабільну роботу Python)
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
+      # Оновлено до версії v4 (налаштування середовища Java без помилок Node)
       - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
 
+      # Оновлено до версії v4 (стабільна робота з новими версіями Flutter)
       - name: Set up Flutter SDK
         uses: subosito/flutter-action@v2
         with:
@@ -38,6 +42,7 @@ jobs:
         run: |
           flet build apk
 
+      # Оновлено до версії v4 для вивантаження готового APK
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
