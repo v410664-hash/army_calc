@@ -1,6 +1,5 @@
-# Інструкція для автоматичного збирання Android App та Play Market сторінки
 app:
-  name: "Армійський калькулятор відпусток"
+  name: "armycalc"
   package: "com.army.vacationcalc"
   version: "1.0.0"
   build_number: 1
