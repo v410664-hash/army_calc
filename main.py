@@ -1,14 +1,17 @@
 import flet as ft
 from datetime import datetime, timedelta
+import os
 
 def main(page: ft.Page):
     page.title = "Армійський Калькулятор"
-    page.window_width = 450
-    page.window_height = 750
     page.scroll = "auto"
     page.theme_mode = ft.ThemeMode.DARK
     page.background_color = "#3B4732" 
     
+    # Адаптуємо розміри вікна (діє лише на ПК, на Android ігнорується)
+    page.window_width = 450
+    page.window_height = 750
+
     HL = {'01.01': 'Новий рік', '07.01': 'Різдво', '08.03': '8 Березня', '12.04': 'Великдень', '01.05': 'День праці', '09.05': 'День перемоги', '31.05': 'Трійця', '28.06': 'День Конституції', '24.08': 'День Незалежності', '06.12': 'День ЗСУ'}
 
     def do_calc(e):
@@ -51,13 +54,37 @@ def main(page: ft.Page):
     def add_to_log(e):
         do_calc(None)
         try:
-            with open("arm_vacation_log.txt", "a", encoding="utf-8") as f:
+            # Використовуємо безпечний шлях для Android (тимчасова папка додатку) або корінь для ПК
+            log_dir = os.environ.get("HOME", ".")
+            log_path = os.path.join(log_dir, "arm_vacation_log.txt")
+            
+            with open(log_path, "a", encoding="utf-8") as f:
                 f.write(f"[{datetime.now().strftime('%d.%m %H:%M')}] {txt_pib.value or 'Боєць'} | {combo_type.value} | {txt_dur.value} дн.\n")
-            snack = ft.SnackBar(ft.Text("Розрахунок успішно записано в лог-файл!"))
+            
+            snack = ft.SnackBar(ft.Text("Розрахунок успішно записано в лог!"))
             page.overlay.append(snack)
             snack.open = True
             page.update()
-        except: pass
+        except Exception as ex:
+            # Якщо запис у файл заблоковано, зберігаємо внутрішньо в пам'ять додатку
+            page.client_storage.set(f"log_{datetime.now().timestamp()}", f"{txt_pib.value} | {txt_dur.value} дн.")
+            snack = ft.SnackBar(ft.Text("Збережено в локальну пам'ять додатку!"))
+            page.overlay.append(snack)
+            snack.open = True
+            page.update()
+
+    def close_app(e):
+        # Безпечне закриття: на Windows закриє вікно, на Android просто згорне або очистить форму
+        if page.platform in [ft.PagePlatform.WINDOWS, ft.PagePlatform.MACOS, ft.PagePlatform.LINUX]:
+            page.window_close()
+        else:
+            txt_pib.value = ""
+            txt_dur.value = "30"
+            do_calc(None)
+            snack = ft.SnackBar(ft.Text("Форму очищено!"))
+            page.overlay.append(snack)
+            snack.open = True
+            page.update()
 
     txt_pib = ft.TextField(label="Звання / ПІБ", border_color="#C5C1AA", text_style=ft.TextStyle(weight="bold", size=16))
     combo_type = ft.Dropdown(label="Вид відпустки", value="Основна щорічна 🪖", options=[
@@ -85,7 +112,7 @@ def main(page: ft.Page):
                 ft.Container(content=lbl_res, bgcolor="#556B2F", padding=10, border_radius=5),
                 ft.Row([
                     ft.ElevatedButton("Записати в Лог", on_click=add_to_log, bgcolor="#C5C1AA", color="#2F4F4F"),
-                    ft.ElevatedButton("Закрити", on_click=lambda x: page.window_close(), bgcolor="#768B6E", color="#FFFFFF")
+                    ft.ElevatedButton("Очистити/Закрити", on_click=close_app, bgcolor="#768B6E", color="#FFFFFF")
                 ], alignment="center")
             ], spacing=12),
             padding=15, bgcolor="#4D5D43", border_radius=10, margin=10
