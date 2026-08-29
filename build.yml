@@ -1,33 +1,31 @@
-name: Flet Android Build
+name: Build Flet APK
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main, головний ]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
         with:
-          python-version: '3.11'
+          distribution: 'zulu'
+          java-version: '17'
 
-      - name: Install Flet
-        run: |
-          pip install --upgrade pip
-          pip install flet
+      - name: Build Android APK
+        uses: flet-dev/flet-build-action@v1
+        with:
+          target: apk
 
-      - name: Build APK
-        run: |
-          flet build apk main.py
-
-      - name: Upload APK artifact
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: App-Release-APK
-          path: build/apk/
+          name: flet-apk
+          path: build/apk/*.apk
