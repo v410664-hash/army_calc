@@ -2,7 +2,7 @@ name: Flet Android Build
 
 on:
   push:
-    branches: [ main, головний ]
+    branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
@@ -25,16 +25,9 @@ jobs:
       - name: Build APK and App Bundle
         run: |
           python -m flet build apk main.py
-          python -m flet build appbundle main.py
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: App-Release-APK
-          path: build/apk/*.apk
-
-      - name: Upload AAB artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: App-Release-AAB
-          path: build/appbundle/*.aab
+          path: build/apk/
